@@ -46,7 +46,7 @@ def cargar_ciudades(catalog):
         model.subirciudad(catalog,ciudad)
 
 def cargar_aereopuertos(catalog):
-    file = cf.data_dir + "airports.csv"
+    file = cf.data_dir + "airports_full.csv"
     input_file = csv.DictReader(open(file, encoding='utf-8'))
     for aereopuerto in input_file:
         model.subir_aereopuerto(catalog,aereopuerto)

@@ -25,6 +25,8 @@ import sys
 import controller
 from DISClib.ADT import list as lt
 assert cf
+from DISClib.ADT import graph as gr
+from DISClib.ADT import map as mp
 
 
 """
@@ -60,6 +62,9 @@ while True:
         print("Cargando información de los archivos ....")
         catalog = initCatalog()
         datos = loadData(catalog)
+        grafo = mp.get(catalog,"Grafo")["value"]
+        print(gr.numVertices(grafo))
+        print(gr.numEdges(grafo))
 
     elif int(inputs[0]) == 2:
         pass

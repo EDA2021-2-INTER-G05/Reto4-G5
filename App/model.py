@@ -60,17 +60,25 @@ def subir_aereopuerto(catalog,airport):
     mp.put(aereopuerto,"Codigo",airport["IATA"])
     mp.put(mp.get(catalog,"Aereopuertos")["value"],mp.get(aereopuerto,"Codigo")["value"],aereopuerto)
 
-    ciudad = mp.get(mp.get(catalog,"Ciudades")["value"],airport["City"])
+
+    contains = mp.contains(mp.get(catalog,"Ciudades")["value"],airport["City"])
+    if not contains:
+        mp.put(mp.get(catalog,"Ciudades")["value"],airport["City"],mp.newMap())
+        ciudad = mp.get(mp.get(catalog,"Ciudades")["value"],airport["City"])["value"]
+        mp.put(ciudad,"Nombre",airport["City"])
+        mp.put(ciudad,"aereopuertos",lt.newList())
+
+    ciudad = mp.get(mp.get(catalog,"Ciudades")["value"],airport["City"])["value"]
     mp.put(aereopuerto,"Ciudad",ciudad)
     nombre_ciudad = mp.get(mp.get(aereopuerto,"Ciudad")["value"],"Nombre")["value"]
 
-    lista = mp.get(mp.get(mp.get(catalog,"Ciudades")["value"],nombre_ciudad),"aereopuertos")["value"]
+    lista = mp.get(mp.get(mp.get(catalog,"Ciudades")["value"],nombre_ciudad)["value"],"aereopuertos")["value"]
     lt.addLast(lista,aereopuerto)
 
 def subir_rutas(catalog,route):
     origen = route["Departure"]
-    destino = route["Destinantion"]
-    distancia = route["Distance"]
+    destino = route["Destination"]
+    distancia = route["distance_km"]
 
     grafo = mp.get(catalog,"Grafo")["value"]
 
@@ -80,7 +88,7 @@ def subir_rutas(catalog,route):
     if not gr.containsVertex(grafo,destino):
         gr.insertVertex(grafo,destino)
 
-    adjacentes = gr.adjacentEdges(origen)
+    adjacentes = gr.adjacentEdges(grafo,origen)
 
     contains = False
     for vertice in adjacentes:
