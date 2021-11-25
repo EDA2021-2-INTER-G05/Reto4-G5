@@ -31,6 +31,7 @@ from DISClib.ADT import map as mp
 from DISClib.DataStructures import mapentry as me
 from DISClib.Algorithms.Sorting import shellsort as sa
 assert cf
+from DISClib.ADT import graph as gr
 
 """
 Se define la estructura de un catálogo de videos. El catálogo tendrá dos listas, una para los videos, otra para las categorias de
@@ -38,6 +39,60 @@ los mismos.
 """
 
 # Construccion de modelos
+
+def initCatalog():
+    catalog = mp.newMap(loadfactor=4)
+    mp.put(catalog,"Ciudades",mp.newMap())
+    mp.put(catalog,"Grafo",gr.newGraph())
+    mp.put(catalog,"Aereopuertos",mp.newMap())
+    return catalog
+
+def subirciudad(catalog,city):
+    ciudad = mp.newMap()
+    mp.put(ciudad,"Nombre",city["city"])
+    mp.put(ciudad,"aereopuertos",lt.newList())
+
+    mp.put(mp.get(catalog,"Ciudades")["value"],mp.get(ciudad,"Nombre")["value"],ciudad)
+
+def subir_aereopuerto(catalog,airport):
+    aereopuerto = mp.newMap()
+    mp.put(aereopuerto,"Nombre",airport["Name"])
+    mp.put(aereopuerto,"Codigo",airport["IATA"])
+    mp.put(mp.get(catalog,"Aereopuertos")["value"],mp.get(aereopuerto,"Codigo")["value"],aereopuerto)
+
+    ciudad = mp.get(mp.get(catalog,"Ciudades")["value"],airport["City"])
+    mp.put(aereopuerto,"Ciudad",ciudad)
+    nombre_ciudad = mp.get(mp.get(aereopuerto,"Ciudad")["value"],"Nombre")["value"]
+
+    lista = mp.get(mp.get(mp.get(catalog,"Ciudades")["value"],nombre_ciudad),"aereopuertos")["value"]
+    lt.addLast(lista,aereopuerto)
+
+def subir_rutas(catalog,route):
+    origen = route["Departure"]
+    destino = route["Destinantion"]
+    distancia = route["Distance"]
+
+    grafo = mp.get(catalog,"Grafo")["value"]
+
+    if not gr.containsVertex(grafo,origen):
+        gr.insertVertex(grafo,origen)
+    
+    if not gr.containsVertex(grafo,destino):
+        gr.insertVertex(grafo,destino)
+
+    adjacentes = gr.adjacentEdges(origen)
+
+    contains = False
+    for vertice in adjacentes:
+        if vertice == destino:
+            contains = True
+            break
+
+    if not contains:
+        gr.addEdge(grafo,origen,destino,distancia)
+
+
+    
 
 # Funciones para agregar informacion al catalogo
 
