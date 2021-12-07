@@ -27,6 +27,7 @@ from DISClib.ADT import list as lt
 assert cf
 from DISClib.ADT import graph as gr
 from DISClib.ADT import map as mp
+from prettytable import PrettyTable
 
 
 """
@@ -40,6 +41,23 @@ def initCatalog():
     return controller.initCatalog()
 def loadData(catalog):
     return controller.loadData(catalog)
+
+def print_mayor_grado(lista_gra,lista_digra,catalog):
+    print("Para el grafo:")
+    tabla = PrettyTable()
+    tabla.field_names =["Nombre","Ciudad","País","IATA","Conecciones"]
+    for diccionario in lt.iterator(lista_gra):
+        aereopuerto = mp.get(mp.get(catalog,"Aereopuertos")["value"],mp.get(diccionario,"vertice")["value"])["value"]
+        tabla.add_row([mp.get(aereopuerto,"Nombre")["value"],mp.get(aereopuerto,"Ciudad")["value"],mp.get(aereopuerto,"Pais")["value"],mp.get(aereopuerto,"Codigo")["value"],mp.get(diccionario,"grado")["value"]])
+    print(tabla)
+
+    print("Para el digrafo:")
+    tabla = PrettyTable()
+    tabla.field_names =["Nombre","Ciudad","País","IATA","Conecciones totales","Conecciones llegada","Conecciones salida"]
+    for diccionario in lt.iterator(lista_digra):
+        aereopuerto = mp.get(mp.get(catalog,"Aereopuertos")["value"],mp.get(diccionario,"vertice")["value"])["value"]
+        tabla.add_row([mp.get(aereopuerto,"Nombre")["value"],mp.get(aereopuerto,"Ciudad")["value"],mp.get(aereopuerto,"Pais")["value"],mp.get(aereopuerto,"Codigo")["value"],mp.get(diccionario,"grado")["value"],mp.get(diccionario,"entrada")["value"],mp.get(diccionario,"salida")["value"]])
+    print(tabla)
 
 def printMenu():
     print("Bienvenido")
@@ -73,9 +91,7 @@ while True:
 
     elif int(inputs[0]) == 1:
         resultado = controller.mayor_grado(catalog)
-        for lista in resultado:
-            for dict in lt.iterator(lista):
-                print(mp.get(dict,"vertice")["value"],mp.get(dict,"grado")["value"])
+        print_mayor_grado(resultado[0],resultado[1],catalog)
 
     else:
         sys.exit(0)

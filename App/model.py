@@ -63,21 +63,9 @@ def subir_aereopuerto(catalog,airport):
     mp.put(aereopuerto,"Nombre",airport["Name"])
     mp.put(aereopuerto,"Codigo",airport["IATA"])
     mp.put(mp.get(catalog,"Aereopuertos")["value"],mp.get(aereopuerto,"Codigo")["value"],aereopuerto)
+    mp.put(aereopuerto,"Ciudad",airport["City"])
+    mp.put(aereopuerto,"Pais",airport["Country"])
 
-
-    contains = mp.contains(mp.get(catalog,"Ciudades")["value"],airport["City"])
-    if not contains:
-        mp.put(mp.get(catalog,"Ciudades")["value"],airport["City"],mp.newMap())
-        ciudad = mp.get(mp.get(catalog,"Ciudades")["value"],airport["City"])["value"]
-        mp.put(ciudad,"Nombre",airport["City"])
-        mp.put(ciudad,"aereopuertos",lt.newList())
-
-    ciudad = mp.get(mp.get(catalog,"Ciudades")["value"],airport["City"])["value"]
-    mp.put(aereopuerto,"Ciudad",ciudad)
-    nombre_ciudad = mp.get(mp.get(aereopuerto,"Ciudad")["value"],"Nombre")["value"]
-
-    lista = mp.get(mp.get(mp.get(catalog,"Ciudades")["value"],nombre_ciudad)["value"],"aereopuertos")["value"]
-    lt.addLast(lista,aereopuerto)
 
     digrafo = mp.get(catalog,"DiGrafo")["value"]
     grafo = mp.get(catalog,"Grafo")["value"]
@@ -185,6 +173,8 @@ def mayor_grado(catalog):
         diccionario = mp.newMap()
         mp.put(diccionario,"vertice",vertice)
         mp.put(diccionario,"grado",gr.outdegree(digrafo,vertice)+gr.indegree(digrafo,vertice))
+        mp.put(diccionario,"entrada",gr.indegree(digrafo,vertice))
+        mp.put(diccionario,"salida",gr.outdegree(digrafo,vertice))
 
         grado = gr.outdegree(grafo,vertice) + gr.indegree(digrafo,vertice)
         if lt.size(lista_min_digra)<6:
