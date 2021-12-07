@@ -77,6 +77,9 @@ def print_mayor_grado(lista_gra,lista_digra,catalog):
         tabla.add_row([mp.get(aereopuerto,"Nombre")["value"],mp.get(aereopuerto,"Ciudad")["value"],mp.get(aereopuerto,"Pais")["value"],mp.get(aereopuerto,"Codigo")["value"],mp.get(diccionario,"grado")["value"],mp.get(diccionario,"entrada")["value"],mp.get(diccionario,"salida")["value"]])
     print(tabla)
 
+def print_caminos(camino_gra,camino_di,catalog):
+    pass
+
 def escoger_ciudad(ciudad,catalog):
     lista = mp.get(mp.get(catalog,"Ciudades")["value"],ciudad)["value"]
     if lt.size(lista) == 1:
@@ -129,6 +132,7 @@ while True:
         fin = input("Ingrese el nombre de la ciudad final: ")
         fin = escoger_ciudad(fin,catalog)
         resultado = controller.ruta_corta(catalog,inicio,fin)
+        print_caminos(resultado[0],resultado[1],catalog)
 
     else:
         sys.exit(0)

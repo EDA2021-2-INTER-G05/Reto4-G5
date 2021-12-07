@@ -108,7 +108,7 @@ def subir_aereopuerto(catalog,airport):
 def subir_rutas(catalog,route):
     origen = route["Departure"]
     destino = route["Destination"]
-    distancia = route["distance_km"]
+    distancia = float(route["distance_km"])
 
 #Carga digrafo
     digrafo = mp.get(catalog,"DiGrafo")["value"]
@@ -132,7 +132,7 @@ def subir_rutas(catalog,route):
     if not gr.containsVertex(grafo,destino):
         gr.insertVertex(grafo,destino)
     if gr.getEdge(grafo,origen,destino) == None and gr.getEdge(digrafo,destino,origen):
-        gr.addEdge(grafo,destino,origen)
+        gr.addEdge(grafo,destino,origen,distancia)
     
 
 # Funciones para agregar informacion al catalogo
@@ -273,7 +273,9 @@ def mas_cercano(lista,lat,lon):
 
 def ruta_corta(catalog,inicio,fin):
     grafo = mp.get(catalog,"Grafo")["value"]
+    inicio = mp.get(inicio,"Codigo")["value"]
     caminos_grafo = djk.Dijkstra(grafo,inicio)
+    fin = mp.get(fin,"Codigo")["value"]
     camino_grafo =djk.pathTo(caminos_grafo,fin)
 
     digrafo = mp.get(catalog,"DiGrafo")["value"]
