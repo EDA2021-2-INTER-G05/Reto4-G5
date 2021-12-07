@@ -62,12 +62,20 @@ while True:
         print("Cargando información de los archivos ....")
         catalog = initCatalog()
         datos = loadData(catalog)
+        digrafo = mp.get(catalog,"DiGrafo")["value"]
         grafo = mp.get(catalog,"Grafo")["value"]
+        print("Digrafo:")
+        print(gr.numVertices(digrafo))
+        print(gr.numEdges(digrafo))
+        print("Grafo:")
         print(gr.numVertices(grafo))
         print(gr.numEdges(grafo))
 
-    elif int(inputs[0]) == 2:
-        pass
+    elif int(inputs[0]) == 1:
+        resultado = controller.mayor_grado(catalog)
+        for lista in resultado:
+            for dict in lt.iterator(lista):
+                print(mp.get(dict,"vertice")["value"],mp.get(dict,"grado")["value"])
 
     else:
         sys.exit(0)

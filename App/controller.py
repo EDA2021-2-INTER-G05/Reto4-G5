@@ -57,6 +57,9 @@ def cargar_rutas(catalog):
     for ruta in input_file:
         model.subir_rutas(catalog,ruta)
 
+def mayor_grado(catalog):
+    return model.mayor_grado(catalog)
+
 # Funciones para la carga de datos
 
 # Funciones de ordenamiento
