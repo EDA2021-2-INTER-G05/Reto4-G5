@@ -30,11 +30,16 @@ from DISClib.DataStructures.adjlist import degree, outdegree
 import config as cf
 from DISClib.ADT import list as lt
 from DISClib.ADT import map as mp
+from DISClib.ADT import orderedmap as om
 from DISClib.DataStructures import mapentry as me
 from DISClib.Algorithms.Sorting import shellsort as sa
 from DISClib.Algorithms.Sorting import insertionsort 
 assert cf
 from DISClib.ADT import graph as gr
+from math import radians, cos, sin, asin, sqrt
+import math
+from DISClib.ADT import minpq 
+from DISClib.Algorithms.Graphs import dijsktra as djk
 
 """
 Se define la estructura de un catálogo de videos. El catálogo tendrá dos listas, una para los videos, otra para las categorias de
@@ -49,26 +54,40 @@ def initCatalog():
     mp.put(catalog,"DiGrafo",gr.newGraph(directed=True))
     mp.put(catalog,"Aereopuertos",mp.newMap())
     mp.put(catalog,"Grafo",gr.newGraph())
+    mp.put(catalog,"Arbol_aereo",om.newMap())
+    #El árbol está organizado por longitud
     return catalog
 
 def subirciudad(catalog,city):
     ciudad = mp.newMap()
     mp.put(ciudad,"Nombre",city["city"])
-    mp.put(ciudad,"aereopuertos",lt.newList())
+    mp.put(ciudad,"Pais",city["country"])
+    mp.put(ciudad,"Longitud",round(float(city["lng"]),2))
+    mp.put(ciudad,"Latitud",round(float(city["lat"]),2))
+    
+    mapa = mp.get(catalog,"Ciudades")["value"]
+    nombre = mp.get(ciudad,"Nombre")["value"]
 
-    mp.put(mp.get(catalog,"Ciudades")["value"],mp.get(ciudad,"Nombre")["value"],ciudad)
+    if mp.contains(mapa,nombre):
+        lista = mp.get(mapa,nombre)["value"]
+        lt.addLast(lista,ciudad)
+    else:
+        mp.put(mapa,nombre,lt.newList())
+        lista = mp.get(mapa,nombre)["value"]
+        lt.addLast(lista,ciudad)
 
 def subir_aereopuerto(catalog,airport):
+    #Crear aereopuerto
     aereopuerto = mp.newMap()
     mp.put(aereopuerto,"Nombre",airport["Name"])
     mp.put(aereopuerto,"Codigo",airport["IATA"])
     mp.put(mp.get(catalog,"Aereopuertos")["value"],mp.get(aereopuerto,"Codigo")["value"],aereopuerto)
     mp.put(aereopuerto,"Ciudad",airport["City"])
     mp.put(aereopuerto,"Pais",airport["Country"])
-    mp.put(aereopuerto,"Latitud",airport["Latitude"])
-    mp.put(aereopuerto,"Longitud",airport["Longitude"])
+    mp.put(aereopuerto,"Latitud",round(float(airport["Latitude"]),2))
+    mp.put(aereopuerto,"Longitud",round(float(airport["Longitude"]),2))
 
-
+    #Subir a los grafos
     digrafo = mp.get(catalog,"DiGrafo")["value"]
     grafo = mp.get(catalog,"Grafo")["value"]
     iata = mp.get(aereopuerto,"Codigo")["value"]
@@ -79,6 +98,10 @@ def subir_aereopuerto(catalog,airport):
     if not gr.containsVertex(grafo,iata):
         gr.insertVertex(grafo,iata)
     
+    #Subir al árbol
+    arbol = mp.get(catalog,"Arbol_aereo")["value"]
+    add_or_create_om_in_om(arbol,mp.get(aereopuerto,"Longitud")["value"],mp.get(aereopuerto,"Latitud")["value"],aereopuerto)
+    
     return aereopuerto
 
 
@@ -87,43 +110,50 @@ def subir_rutas(catalog,route):
     destino = route["Destination"]
     distancia = route["distance_km"]
 
-
 #Carga digrafo
     digrafo = mp.get(catalog,"DiGrafo")["value"]
-
     if not gr.containsVertex(digrafo,origen):
         gr.insertVertex(digrafo,origen)
-    
     if not gr.containsVertex(digrafo,destino):
         gr.insertVertex(digrafo,destino)
 
     adjacentes = gr.adjacents(digrafo,origen)
-
     contains = False
     for vertice in lt.iterator(adjacentes):
         if vertice == destino:
             contains = True
             break
-
     if not contains:
         gr.addEdge(digrafo,origen,destino,distancia)
-
 #Carga grafo
-
     grafo = mp.get(catalog,"Grafo")["value"]
-
     if not gr.containsVertex(grafo,origen):
         gr.insertVertex(grafo,origen)
-    
     if not gr.containsVertex(grafo,destino):
         gr.insertVertex(grafo,destino)
-
     if gr.getEdge(grafo,origen,destino) == None and gr.getEdge(digrafo,destino,origen):
         gr.addEdge(grafo,destino,origen)
     
 
-
 # Funciones para agregar informacion al catalogo
+
+def add_or_create_om_in_om(arbol,llave_arbol1,llave_arbol2,valor):
+    if om.contains(arbol,llave_arbol1):
+        arbol2 = om.get(arbol,llave_arbol1)["value"]
+        if om.contains(arbol2,llave_arbol2):
+            lista = om.get(arbol2,llave_arbol2)["value"]
+            lt.addLast(lista,valor)
+        else:
+            om.put(arbol2,llave_arbol2,lt.newList("ARRAY_LIST"))
+            lista = om.get(arbol2,llave_arbol2)["value"]
+            lt.addLast(lista,valor)
+    
+    else:
+        om.put(arbol,llave_arbol1,om.newMap())
+        arbol2=om.get(arbol,llave_arbol1)["value"]
+        om.put(arbol2,llave_arbol2,lt.newList("ARRAY_LIST"))
+        lista = om.get(arbol2,llave_arbol2)["value"]
+        lt.addLast(lista,valor)
 
 # Funciones para creacion de datos
 
@@ -207,8 +237,24 @@ def mayor_grado(catalog):
 
     insertionsort.sort(lista_min_digra,compare_degree)
     return lista_min,lista_min_digra
-    
 
+def aereopuerto_cercano(ciudad,catalog):
+    lat = float(mp.get(ciudad,"Latitud")["value"])
+    lon = float(mp.get(ciudad,"Longitud")["value"])
+    rango = 10
+    encontrado = False
+
+    while not encontrado:
+        (latMax,latMin,lonMax,lonMin) = coordenadasMaximas(lon,lat,rango)
+        lista = busqueda_aerea(catalog,lonMin,lonMax,latMin,latMax)
+        if lt.size(lista) != 0:
+            encontrado = True
+        else:
+            rango += 10
+    
+    aereopuerto = mas_cercano(lista,lat,lon)
+    return mp.get(aereopuerto,"aereopuerto")["value"]
+        
     
 def compare_degree(dict1,dict2):
     if mp.get(dict1,"grado")["value"]>mp.get(dict2,"grado")["value"]:
@@ -216,12 +262,85 @@ def compare_degree(dict1,dict2):
     else:
         return False
 
+def mas_cercano(lista,lat,lon):
+    lista_dict = minpq.newMinPQ(compare_distance)
+    for aereopuerto in lt.iterator(lista):
+        diccionario = mp.newMap()
+        mp.put(diccionario,"aereopuerto",aereopuerto)
+        mp.put(diccionario,"distancia",haversine(lon,lat,mp.get(aereopuerto,"Longitud")["value"],mp.get(aereopuerto,"Latitud")["value"]))
+        minpq.insert(lista_dict,diccionario)
+    return minpq.min(lista_dict)
 
-        
+def ruta_corta(catalog,inicio,fin):
+    grafo = mp.get(catalog,"Grafo")["value"]
+    caminos_grafo = djk.Dijkstra(grafo,inicio)
+    camino_grafo =djk.pathTo(caminos_grafo,fin)
+
+    digrafo = mp.get(catalog,"DiGrafo")["value"]
+    caminos_di = djk.Dijkstra(digrafo,inicio)
+    camino_digrafo =djk.pathTo(caminos_di,fin)
+
+    return camino_grafo,camino_digrafo
+
+def haversine(lon1, lat1, lon2, lat2):
+    """
+    Calculate the great circle distance in kilometers between two points 
+    on the earth (specified in decimal degrees)
+
+    Codigo obtenido de: https://stackoverflow.com/questions/4913349/haversine-formula-in-python-bearing-and-distance-between-two-gps-points
+    """
+    # convert decimal degrees to radians 
+    lon1, lat1, lon2, lat2 = map(radians, [lon1, lat1, lon2, lat2])
+
+    # haversine formula 
+    dlon = lon2 - lon1 
+    dlat = lat2 - lat1 
+    a = sin(dlat/2)**2 + cos(lat1) * cos(lat2) * sin(dlon/2)**2
+    c = 2 * asin(sqrt(a)) 
+    r = 6371 # Radius of earth in kilometers. Use 3956 for miles. Determines return value units.
+    return c * r
 
 
+def coordenadasMaximas(longitude,latitude,km):
 
+    dlat = (1/110)*km 
+    
+    latMax=latitude + dlat
+    latMin=latitude  -  dlat
 
+    dlon = (1/(111*cos(latitude*(math.pi/180))))*km
+
+    lonMax= longitude + dlon
+    lonMin=longitude - dlon
+
+    return (latMax,latMin,lonMax,lonMin)
+
+def busqueda_aerea(catalog,lon_min,lon_max,lat_min,lat_max):
+    arbol_Lon = mp.get(catalog,"Arbol_aereo")["value"]
+    lista_retorno = lt.newList("ARRAY_LIST")
+    
+    lon_min = om.ceiling(arbol_Lon,lon_min)
+    lon_max = om.floor(arbol_Lon,lon_max)
+
+    if lon_min != None and lon_max != None:
+        rango_lon = om.values(arbol_Lon,lon_min,lon_max)
+
+        for arbol_Lat in lt.iterator(rango_lon):
+            lat_min_in = om.ceiling(arbol_Lat,lat_min)
+            lat_max_in = om.floor(arbol_Lat,lat_max)
+            if lat_min_in !=None and lat_max_in != None:
+                rango_lat = om.values(arbol_Lat,lat_min_in,lat_max_in)
+                for latitud in lt.iterator(rango_lat):
+                    for avistamiento in lt.iterator(latitud):
+                        lt.addLast(lista_retorno,avistamiento)
+    
+    return lista_retorno
+
+def compare_distance(dict1,dict2):
+    if mp.get(dict1,"distancia")["value"] > mp.get(dict2,"distancia")["value"]:
+        return True
+    else:
+        return False
 # Funciones utilizadas para comparar elementos dentro de una lista
 
 # Funciones de ordenamiento

@@ -74,6 +74,12 @@ def cargar_rutas(catalog):
 def mayor_grado(catalog):
     return model.mayor_grado(catalog)
 
+def ruta_corta(catalog,inicio,fin):
+    inicio = model.aereopuerto_cercano(inicio,catalog)
+    fin = model.aereopuerto_cercano(fin,catalog)
+    resultado = model.ruta_corta(catalog,inicio,fin)
+    return resultado
+
 # Funciones para la carga de datos
 
 # Funciones de ordenamiento

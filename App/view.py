@@ -77,6 +77,25 @@ def print_mayor_grado(lista_gra,lista_digra,catalog):
         tabla.add_row([mp.get(aereopuerto,"Nombre")["value"],mp.get(aereopuerto,"Ciudad")["value"],mp.get(aereopuerto,"Pais")["value"],mp.get(aereopuerto,"Codigo")["value"],mp.get(diccionario,"grado")["value"],mp.get(diccionario,"entrada")["value"],mp.get(diccionario,"salida")["value"]])
     print(tabla)
 
+def escoger_ciudad(ciudad,catalog):
+    lista = mp.get(mp.get(catalog,"Ciudades")["value"],ciudad)["value"]
+    if lt.size(lista) == 1:
+        return lt.getElement(lista,1)
+    else:
+        print("Existe más de una ciudad con el nombre seleccionado. Por favor seleccione la que desea escoger")
+        contador = 1
+        for ciudad in lt.iterator(lista):
+            print(contador)
+            tabla = PrettyTable()
+            tabla.field_names=["Nombre","País","Longitud","Latitud"]
+            tabla.add_row([mp.get(ciudad,"Nombre")["value"],mp.get(ciudad,"Pais")["value"],mp.get(ciudad,"Longitud")["value"],mp.get(ciudad,"Latitud")["value"]])
+            print(tabla)
+            contador += 1
+        
+        pos = int(input("Ingrese el número de la ciudad que desea escoger: "))
+        return lt.getElement(lista,pos)
+
+
 def printMenu():
     print("Bienvenido")
     print("0- Cargar información en el catálogo")
@@ -103,6 +122,13 @@ while True:
     elif int(inputs[0]) == 1:
         resultado = controller.mayor_grado(catalog)
         print_mayor_grado(resultado[0],resultado[1],catalog)
+    
+    elif int(inputs[0]) == 3:
+        inicio = input("Ingrese el nombre de la ciudad de inicio: ")
+        inicio = escoger_ciudad(inicio,catalog)
+        fin = input("Ingrese el nombre de la ciudad final: ")
+        fin = escoger_ciudad(fin,catalog)
+        resultado = controller.ruta_corta(catalog,inicio,fin)
 
     else:
         sys.exit(0)
