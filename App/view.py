@@ -28,6 +28,7 @@ assert cf
 from DISClib.ADT import graph as gr
 from DISClib.ADT import map as mp
 from prettytable import PrettyTable
+from DISClib.DataStructures.adjlist import numEdges
 
 
 """
@@ -41,6 +42,23 @@ def initCatalog():
     return controller.initCatalog()
 def loadData(catalog):
     return controller.loadData(catalog)
+
+def print_info(catalog,primero,fila):
+    digrafo = mp.get(catalog,"DiGrafo")["value"]
+    grafo = mp.get(catalog,"Grafo")["value"]
+    tabla = PrettyTable()
+    tabla.field_names = ["Tipo de Grafo","Número de aereopuertos","Número de rutas"]
+    tabla.add_row(["Grafo no dirigido",gr.numVertices(grafo),numEdges(grafo)])
+    tabla.add_row(["Grafo dirigido",gr.numVertices(digrafo),numEdges(digrafo)])
+    print(tabla)
+    print("El primer y último aereopuerto cargado fueron: ")
+    tabla = PrettyTable()
+    tabla.field_names = ["IATA","Nombre","Ciudad","País","Latitud","Longitud"]
+    tabla.add_row([mp.get(primero,"Codigo")["value"],mp.get(primero,"Nombre")["value"],mp.get(primero,"Ciudad")["value"],mp.get(primero,"Pais")["value"],mp.get(primero,"Latitud")["value"],mp.get(primero,"Longitud")["value"]])
+    ultimo = lt.getElement(fila,1)
+    tabla.add_row([mp.get(ultimo,"Codigo")["value"],mp.get(ultimo,"Nombre")["value"],mp.get(ultimo,"Ciudad")["value"],mp.get(ultimo,"Pais")["value"],mp.get(ultimo,"Latitud")["value"],mp.get(ultimo,"Longitud")["value"]])
+    print(tabla)
+
 
 def print_mayor_grado(lista_gra,lista_digra,catalog):
     print("Para el grafo:")
@@ -80,14 +98,7 @@ while True:
         print("Cargando información de los archivos ....")
         catalog = initCatalog()
         datos = loadData(catalog)
-        digrafo = mp.get(catalog,"DiGrafo")["value"]
-        grafo = mp.get(catalog,"Grafo")["value"]
-        print("Digrafo:")
-        print(gr.numVertices(digrafo))
-        print(gr.numEdges(digrafo))
-        print("Grafo:")
-        print(gr.numVertices(grafo))
-        print(gr.numEdges(grafo))
+        print_info(catalog,datos[0],datos[1])
 
     elif int(inputs[0]) == 1:
         resultado = controller.mayor_grado(catalog)

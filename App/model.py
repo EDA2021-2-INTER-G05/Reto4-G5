@@ -65,6 +65,8 @@ def subir_aereopuerto(catalog,airport):
     mp.put(mp.get(catalog,"Aereopuertos")["value"],mp.get(aereopuerto,"Codigo")["value"],aereopuerto)
     mp.put(aereopuerto,"Ciudad",airport["City"])
     mp.put(aereopuerto,"Pais",airport["Country"])
+    mp.put(aereopuerto,"Latitud",airport["Latitude"])
+    mp.put(aereopuerto,"Longitud",airport["Longitude"])
 
 
     digrafo = mp.get(catalog,"DiGrafo")["value"]
@@ -76,6 +78,9 @@ def subir_aereopuerto(catalog,airport):
 
     if not gr.containsVertex(grafo,iata):
         gr.insertVertex(grafo,iata)
+    
+    return aereopuerto
+
 
 def subir_rutas(catalog,route):
     origen = route["Departure"]

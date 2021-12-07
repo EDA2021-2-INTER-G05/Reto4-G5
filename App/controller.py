@@ -23,6 +23,7 @@
 import config as cf
 import model
 import csv
+from DISClib.ADT import queue as que
 
 
 """
@@ -36,8 +37,9 @@ def initCatalog():
 
 def loadData(catalog):
     cargar_ciudades(catalog)
-    cargar_aereopuertos(catalog)
+    datos = cargar_aereopuertos(catalog)
     cargar_rutas(catalog)
+    return datos
 
 def cargar_ciudades(catalog):
     file = cf.data_dir + "worldcities.csv"
@@ -48,8 +50,20 @@ def cargar_ciudades(catalog):
 def cargar_aereopuertos(catalog):
     file = cf.data_dir + "airports_full.csv"
     input_file = csv.DictReader(open(file, encoding='utf-8'))
+    contador = 1
+    fila = que.newQueue()
+
     for aereopuerto in input_file:
-        model.subir_aereopuerto(catalog,aereopuerto)
+        actual = model.subir_aereopuerto(catalog,aereopuerto)
+        if contador == 1:
+            primero = actual
+            que.enqueue(fila,actual)
+        else:
+            que.dequeue(fila)
+            que.enqueue(fila,actual)
+        contador +=1
+        
+    return primero,fila
 
 def cargar_rutas(catalog):
     file = cf.data_dir + "routes_full.csv"
