@@ -48,7 +48,7 @@ def cargar_ciudades(catalog):
         model.subirciudad(catalog,ciudad)
 
 def cargar_aereopuertos(catalog):
-    file = cf.data_dir + "airports_full.csv"
+    file = cf.data_dir + "airports-utf8-large.csv"
     input_file = csv.DictReader(open(file, encoding='utf-8'))
     contador = 1
     fila = que.newQueue()
@@ -66,7 +66,7 @@ def cargar_aereopuertos(catalog):
     return primero,fila
 
 def cargar_rutas(catalog):
-    file = cf.data_dir + "routes_full.csv"
+    file = cf.data_dir + "routes-utf8-large.csv"
     input_file = csv.DictReader(open(file, encoding='utf-8'))
     for ruta in input_file:
         model.subir_rutas(catalog,ruta)

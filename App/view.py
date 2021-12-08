@@ -29,6 +29,7 @@ from DISClib.ADT import graph as gr
 from DISClib.ADT import map as mp
 from prettytable import PrettyTable
 from DISClib.DataStructures.adjlist import numEdges
+import time
 
 
 """
@@ -77,7 +78,7 @@ def print_mayor_grado(lista_gra,lista_digra,catalog):
         tabla.add_row([mp.get(aereopuerto,"Nombre")["value"],mp.get(aereopuerto,"Ciudad")["value"],mp.get(aereopuerto,"Pais")["value"],mp.get(aereopuerto,"Codigo")["value"],mp.get(diccionario,"grado")["value"],mp.get(diccionario,"entrada")["value"],mp.get(diccionario,"salida")["value"]])
     print(tabla)
 
-def print_caminos(camino_gra,camino_di,catalog):
+def print_caminos(camino_gra,camino_di):
     print("Para el grafo no dirigido:")
     if camino_gra == None:
         print("No existe una ruta entre los dos aereopuertos más cercanos a las ciudades escogidas")
@@ -143,21 +144,33 @@ while True:
     inputs = input('Seleccione una opción para continuar\n')
     if int(inputs[0]) == 0:
         print("Cargando información de los archivos ....")
+        start_time = time.process_time()
         catalog = initCatalog()
         datos = loadData(catalog)
+        stop_time = time.process_time()
+        elapsed_time_mseg = (stop_time - start_time)*1000
         print_info(catalog,datos[0],datos[1])
+        print("Tiempo requerido: "+ str(elapsed_time_mseg) + " mseg")
 
     elif int(inputs[0]) == 1:
+        start_time = time.process_time()
         resultado = controller.mayor_grado(catalog)
+        stop_time = time.process_time()
+        elapsed_time_mseg = (stop_time - start_time)*1000
         print_mayor_grado(resultado[0],resultado[1],catalog)
+        print("Tiempo requerido: "+ str(elapsed_time_mseg) + " mseg")
     
     elif int(inputs[0]) == 3:
         inicio = input("Ingrese el nombre de la ciudad de inicio: ")
         inicio = escoger_ciudad(inicio,catalog)
         fin = input("Ingrese el nombre de la ciudad final: ")
         fin = escoger_ciudad(fin,catalog)
+        start_time = time.process_time()
         resultado = controller.ruta_corta(catalog,inicio,fin)
-        print_caminos(resultado[0],resultado[1],catalog)
+        stop_time = time.process_time()
+        elapsed_time_mseg = (stop_time - start_time)*1000
+        print_caminos(resultado[0],resultado[1])
+        print("Tiempo requerido: "+ str(elapsed_time_mseg) + " mseg")
 
     else:
         sys.exit(0)
