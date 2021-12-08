@@ -78,7 +78,32 @@ def print_mayor_grado(lista_gra,lista_digra,catalog):
     print(tabla)
 
 def print_caminos(camino_gra,camino_di,catalog):
-    pass
+    print("Para el grafo no dirigido:")
+    if camino_gra == None:
+        print("No existe una ruta entre los dos aereopuertos más cercanos a las ciudades escogidas")
+    else:
+        tabla = PrettyTable()
+        tabla.field_names = ["Inicio","Fin","Distancia"]
+        distancia_acu = 0
+        for parada in lt.iterator(camino_gra):
+            tabla.add_row([parada["vertexA"],parada["vertexB"],parada["weight"]])
+            distancia_acu += float(parada["weight"])
+        print(tabla)
+        print("Distancia total: " + str(round(distancia_acu,2))+" km")
+    
+    print("Para el grafo dirigido:")
+    if camino_di == None:
+        print("No existe una ruta entre los dos aereopuertos más cercanos a las ciudades escogidas")
+    else:
+        tabla = PrettyTable()
+        tabla.field_names = ["Inicio","Fin","Distancia"]
+        distancia_acu = 0
+        for parada in lt.iterator(camino_di):
+            tabla.add_row([parada["vertexA"],parada["vertexB"],parada["weight"]])
+            distancia_acu += float(parada["weight"])
+        print(tabla)
+        print("Distancia total: " + str(round(distancia_acu,2))+" km")
+
 
 def escoger_ciudad(ciudad,catalog):
     lista = mp.get(mp.get(catalog,"Ciudades")["value"],ciudad)["value"]
