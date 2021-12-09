@@ -42,7 +42,7 @@ def loadData(catalog):
     return datos
 
 def cargar_ciudades(catalog):
-    file = cf.data_dir + "worldcities.csv"
+    file = cf.data_dir + "worldcities-utf8.csv"
     input_file = csv.DictReader(open(file, encoding='utf-8'))
     for ciudad in input_file:
         model.subirciudad(catalog,ciudad)
@@ -85,3 +85,89 @@ def ruta_corta(catalog,inicio,fin):
 # Funciones de ordenamiento
 
 # Funciones de consulta sobre el catálogo
+
+def init():
+    """
+    Llama la funcion de inicializacion  del modelo.
+    """
+    # analyzer es utilizado para interactuar con el modelo
+    analyzer = model.newAnalyzer()
+    return analyzer
+
+def loadAirportsRutes(analyzer):
+    """
+    Carga los datos de los archivos CSV en el modelo.
+    Se crea un arco entre cada par de estaciones que
+    pertenecen al mismo servicio y van en el mismo sentido.
+    addRouteConnection crea conexiones entre diferentes rutas
+    servidas en una misma estación.
+    """
+    airportsfile = cf.data_dir + 'airports-utf8-small.csv'
+    rutasfile = cf.data_dir + 'routes-utf8-small.csv'
+    ciudaesfile = cf.data_dir + 'worldcities-utf8.csv'
+
+    input_file_aeropuertos = csv.DictReader(open(airportsfile, encoding="utf-8"),
+                                delimiter=",")
+
+    input_file_rutas = csv.DictReader(open(rutasfile, encoding="utf-8"),
+                                delimiter=",")
+
+    input_file_ciudades = csv.DictReader(open(ciudaesfile, encoding="utf-8"),
+                                delimiter=",")
+
+    for aeropuerto in input_file_aeropuertos:
+        model.addVerticeGrafo(analyzer,aeropuerto)
+
+    for ruta in input_file_rutas:
+        model.addRuta(analyzer,ruta)
+
+    for ciudad in input_file_ciudades:
+        model.addCiudad(analyzer,ciudad)
+
+    model.addRutaidayvuleta(analyzer)
+
+def infoaeropuerto(analyzer,codigoAita):
+    informacion = model.infoaeropuerto(analyzer,codigoAita)
+    return informacion
+
+
+
+def Encontrar_clusters(analyzer,codigo1,codigo2):
+    """
+    Retorna los libros que fueron publicados
+    en un año
+    """
+    conectados = model.Encontrar_clusters(analyzer,codigo1,codigo2)
+    return conectados
+
+def millas_viajero(analyzer,codigo,millas):
+    """
+    Retorna los libros que fueron publicados
+    en un año
+    """
+    caminos = model.millas_viajero(analyzer,codigo,millas)
+    return caminos
+
+def quinto_req(analyzer,codigo):
+    """
+    Retorna los libros que fueron publicados
+    en un año
+    """
+    afectados = model.quinto_req(analyzer,codigo)
+    return afectados
+
+def opciones_ciudades(analyzer,ciudad):
+    """
+    Retorna los libros que fueron publicados
+    en un año
+    """
+    ciudades = model.opciones_ciudades(analyzer,ciudad)
+    return ciudades
+
+def aeropuertoopciones(analyzer,ciudad):
+    """
+    Retorna los libros que fueron publicados
+    en un año
+    """
+    aeropuertos = model.aeropuertoopciones(analyzer,ciudad)
+    return aeropuertos
